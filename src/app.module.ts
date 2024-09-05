@@ -4,8 +4,9 @@ import { YnetScrapperProvider } from './rss-scrapper-cron/rss-scrapper-cron.serv
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { HttpModule } from '@nestjs/axios';
-import { RssParser } from './rss-scrapper-cron/parsers/rss-parser';
-import { ArticlesProcessingQueue } from './queues/articles-processing-queue';
+import { RssParser } from './rss-scrapper-cron/rss-parser';
+import { BullModule } from '@nestjs/bullmq';
+import { ArticleHtmlScrapperModule } from './article-scrapper/article-scrapper.module';
 
 @Module({
   imports: [
@@ -15,11 +16,22 @@ import { ArticlesProcessingQueue } from './queues/articles-processing-queue';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URI'),
+        uri: configService.get('MONGODB_URI'),
       }),
       inject: [ConfigService],
     }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        connection: {
+          host: configService.get('REDIS_HOST'),
+          port: configService.get('REDIS_PORT'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    ArticleHtmlScrapperModule
   ],
-  providers: [YnetScrapperProvider, RssParser, ArticlesProcessingQueue],
+  providers: [YnetScrapperProvider, RssParser],
 })
 export class AppModule { }
