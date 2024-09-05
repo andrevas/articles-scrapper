@@ -13,6 +13,8 @@ export class Article {
   tags: string[]
   @Prop()
   description: string
+  @Prop()
+  imageLink: string
 }
 
 export const ArticleSchema = SchemaFactory.createForClass(Article);

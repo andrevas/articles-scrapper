@@ -6,4 +6,5 @@ export type ArticleRssDto = {
   pubDate: Timestamp;
   tags: string[];
   description: string;
+  imageLink: string;
 };
