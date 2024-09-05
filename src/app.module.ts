@@ -8,6 +8,9 @@ import { RssParser } from './rss-scrapper-cron/rss-parser';
 import { BullModule } from '@nestjs/bullmq';
 import { ArticleHtmlScrapperModule } from './article-scrapper/article-scrapper.module';
 import { ArticlesModule } from './articles/articles.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from "cache-manager-redis-yet"
+import { RedisClientOptions } from 'redis';
 
 @Module({
   imports: [
@@ -25,11 +28,24 @@ import { ArticlesModule } from './articles/articles.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         connection: {
-          host: configService.get('REDIS_HOST'),
-          port: configService.get('REDIS_PORT'),
+          host: configService.get<string>('REDIS_HOST'),
+          port: configService.get<number>('REDIS_PORT'),
         },
       }),
       inject: [ConfigService],
+    }),
+    CacheModule.registerAsync<RedisClientOptions>({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        store: await redisStore({
+          socket: {
+            host: configService.get<string>("REDIS_HOST"),
+            port: configService.get<number>("REDIS_PORT"),
+          },
+        }),
+      }),
+      isGlobal: true,
     }),
     ArticleHtmlScrapperModule,
     ArticlesModule

@@ -15,7 +15,7 @@ export class ArticleScrapperQueue {
 
   async queue(task: ArticleProcessingTask) {
     const articleId = task.articleDocument._id.toString();
-    this.articleHtmlScrappingQueue.add(articleId, task);
+    this.articleHtmlScrappingQueue.add(articleId, task, { removeOnComplete: true });
     this.logger.debug(`Queued article ${articleId}`);
   }
 }
