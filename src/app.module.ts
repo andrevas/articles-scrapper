@@ -7,6 +7,7 @@ import { HttpModule } from '@nestjs/axios';
 import { RssParser } from './rss-scrapper-cron/rss-parser';
 import { BullModule } from '@nestjs/bullmq';
 import { ArticleHtmlScrapperModule } from './article-scrapper/article-scrapper.module';
+import { ArticlesModule } from './articles/articles.module';
 
 @Module({
   imports: [
@@ -30,7 +31,8 @@ import { ArticleHtmlScrapperModule } from './article-scrapper/article-scrapper.m
       }),
       inject: [ConfigService],
     }),
-    ArticleHtmlScrapperModule
+    ArticleHtmlScrapperModule,
+    ArticlesModule
   ],
   providers: [YnetScrapperProvider, RssParser],
 })

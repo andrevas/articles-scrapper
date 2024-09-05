@@ -1,10 +1,10 @@
 import { InjectQueue } from "@nestjs/bullmq";
 import { Injectable, Logger } from "@nestjs/common";
 import { Queue } from "bullmq";
-import { ArticleRssDto } from "src/articles/article-rss.dto";
+import { ArticleDocument } from "src/articles/articles.schema";
 
 export type ArticleProcessingTask = {
-  article: ArticleRssDto;
+  articleDocument: ArticleDocument;
 };
 
 @Injectable()
@@ -14,7 +14,8 @@ export class ArticleScrapperQueue {
   constructor(@InjectQueue('article-html') private readonly articleHtmlScrappingQueue: Queue) { }
 
   async queue(task: ArticleProcessingTask) {
-    this.articleHtmlScrappingQueue.add(task.article.link, task);
-    this.logger.debug(`Queued article ${task.article.link}`);
+    const articleId = task.articleDocument._id.toString();
+    this.articleHtmlScrappingQueue.add(articleId, task);
+    this.logger.debug(`Queued article ${articleId}`);
   }
 }

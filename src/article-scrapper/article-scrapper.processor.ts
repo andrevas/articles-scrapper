@@ -10,9 +10,10 @@ export class ArticleScrapperProcessor extends WorkerHost {
 
   async process(job: Job<any, any, string>) {
     try {
-      this.logger.debug(`article - ${job.id} : started`)
-      const { article } = job.data;
-      const { data } = await axios.get(article.link, {
+      const { articleDocument } = job.data;
+      this.logger.debug(`article - ${articleDocument._id.toString()} : started`)
+
+      const { data } = await axios.get(articleDocument.link, {
         responseType: 'document',
       });
       const $ = cheerio.load(data);
@@ -21,7 +22,7 @@ export class ArticleScrapperProcessor extends WorkerHost {
         texts.push($(element).text().trim());
       });
 
-      this.logger.debug(`article - ${job.id} : finished`)
+      this.logger.debug(`article - ${articleDocument._id.toString()} : finished`)
     } catch (err) {
       this.logger.error(err);
     }
